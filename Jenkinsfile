@@ -1,56 +1,53 @@
 pipeline {
     agent any
-
+    
     environment {
-        FRONTEND_IMAGE = "taskify-frontend"
-        BACKEND_IMAGE = "taskify-backend"
+        DOCKER_IMAGE = 'taskify-app'
+        FRONTEND_PORT = '5500'
+        BACKEND_PORT = '3000'
     }
-
+    
     stages {
-        stage('Clone Repo') {
+        stage('Checkout') {
             steps {
-                git 'https://github.com/MananMaheshwari6/taskify.git'
+                checkout scm
             }
         }
-
-        stage('Build Frontend') {
+        
+        stage('Install Dependencies') {
             steps {
-                dir('frontend') {
-                    script {
-                        docker.build("${FRONTEND_IMAGE}")
-                    }
+                sh 'cd backend && npm install'
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build("${DOCKER_IMAGE}")
                 }
             }
         }
-
-        stage('Build Backend') {
+        
+        stage('Deploy Approval') {
             steps {
-                dir('backend') {
-                    script {
-                        docker.build("${BACKEND_IMAGE}")
-                    }
+                timeout(time: 1, unit: 'DAYS') {
+                    input message: 'Approve deployment?', 
+                          ok: 'Deploy'
                 }
             }
         }
-
-        stage('Approval to Deploy') {
-            steps {
-                input message: "Deploy updated frontend and backend?"
-            }
-        }
-
+        
         stage('Deploy') {
             steps {
                 script {
-                    // Stop running containers if any
-                    sh "docker stop frontend || true"
-                    sh "docker rm frontend || true"
-                    sh "docker stop backend || true"
-                    sh "docker rm backend || true"
-
-                    // Run new containers
-                    sh "docker run -d --name frontend -p 80:80 ${FRONTEND_IMAGE}"
-                    sh "docker run -d --name backend -p 3000:3000 --env-file backend/.env ${BACKEND_IMAGE}"
+                    sh 'docker stop ${DOCKER_IMAGE} || true'
+                    sh 'docker rm ${DOCKER_IMAGE} || true'
+                    
+                    docker.image("${DOCKER_IMAGE}").run(
+                        "-p ${FRONTEND_PORT}:${FRONTEND_PORT} " +
+                        "-p ${BACKEND_PORT}:${BACKEND_PORT} " +
+                        "--name ${DOCKER_IMAGE}"
+                    )
                 }
             }
         }
