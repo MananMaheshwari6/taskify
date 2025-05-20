@@ -10,7 +10,6 @@ const connectToDb = async ()=>{
         console.log("database not connected");
     }
 }
-  
 
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
