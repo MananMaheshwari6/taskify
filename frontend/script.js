@@ -1,186 +1,74 @@
-let isSigningUp = false;
-let isAddingTodo = false;
+const API_URL = 'http://localhost:3000/todos';
 
-// Signup Form Submission
-document.getElementById('signup-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (isSigningUp) return;
-    isSigningUp = true;
-
-    const username = document.getElementById('signup-username').value;
-    const password = document.getElementById('signup-password').value;
-
-    try {
-        const response = await fetch('http://localhost:3000/user/signup', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username, password }),
-        });
-        const result = await response.json();
-        isSigningUp = false;
-
-        if (response.ok) {
-            document.getElementById('response-message').innerText = result.message || 'Signup successful, please sign in';
-            document.getElementById('signup-container').style.display = 'none';
-            document.getElementById('signin-container').style.display = 'block';
-        } else {
-            document.getElementById('response-message').innerText = result.message || 'Signup failed';
-        }
-    } catch (error) {
-        isSigningUp = false;
-        document.getElementById('response-message').innerText = 'Error during signup';
-    }
+// Fetch existing todos when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    fetchTodos();
 });
 
-// Signin Form Submission
+// Fetch todos from the backend
+function fetchTodos() {
+    fetch(API_URL)
+        .then(response => response.json())
+        .then(todos => {
+            todos.forEach(todo => addTodoToDOM(todo));
+        })
+        .catch(error => console.error('Error fetching todos:', error));
+}
 
-document.getElementById('signin-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
+// Add a new todo to the DOM
+function addTodoToDOM(todo) {
+    const todoList = document.getElementById('todo-list');
 
-    const username = document.getElementById('signin-username').value;
-    const password = document.getElementById('signin-password').value;
+    const todoItem = document.createElement('li');
+    todoItem.classList.add('todo-item');
+    todoItem.setAttribute('data-id', todo.id);
 
-    try {
-        const response = await fetch('http://localhost:3000/user/signin', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username, password }),
-        });
-        const result = await response.json();
+    const title = document.createElement('span');
+    title.textContent = todo.task; 
 
-        if (response.ok) {
-            localStorage.setItem('token', result.token);
-            document.getElementById('signin-container').style.display = 'none';
-            document.getElementById('todo-container').style.display = 'block';
-            document.getElementById('response-message').innerHTML = 
-                `Logged in successfully. <a href="#" id="logout-link">Logout</a>`;
-            loadTodos();
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = 'Delete';
+    deleteButton.addEventListener('click', () => deleteTodo(todo.id));
 
-            // Add event listener for the logout link
-            document.getElementById('logout-link').addEventListener('click', (e) => {
-                e.preventDefault();
-                localStorage.removeItem('token'); // Clear token
-                document.getElementById('todo-container').style.display = 'none';
-                document.getElementById('signin-container').style.display = 'block';
-                document.getElementById('response-message').innerText = '';
-            });
-        } else {
-            document.getElementById('response-message').innerText = result.message || 'Signin failed';
-        }
-    } catch (error) {
-        document.getElementById('response-message').innerText = 'Error during signin';
-    }
-});
+    todoItem.appendChild(title);
+    todoItem.appendChild(deleteButton);
 
+    todoList.appendChild(todoItem);
+}
 
-// Adding Todo on Form Submission
-document.getElementById('todo-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (isAddingTodo) return;
-    isAddingTodo = true;
+// Add a new todo
+document.getElementById('add-todo-btn').addEventListener('click', () => {
+    const titleInput = document.getElementById('todo-input'); 
 
-    const todoInput = document.getElementById('todo-input');
-    const todoText = todoInput.value.trim();
-    if (!todoText) {
-        isAddingTodo = false;
+    if (!titleInput) {
+        console.error('Input not found');
         return;
     }
 
-    const token = localStorage.getItem('token');
+    const newTodo = { task: titleInput.value };
 
-    try {
-        const response = await fetch('http://localhost:3000/todo', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-            },
-            body: JSON.stringify({ title: todoText }),
-        });
-        const result = await response.json();
-        isAddingTodo = false;
-
-        if (response.ok) {
-            todoInput.value = '';
-            loadTodos();
-        } else {
-            console.error(result.msg);
-        }
-    } catch (error) {
-        isAddingTodo = false;
-        console.error('Error adding todo:', error);
-    }
+    fetch(API_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newTodo),
+    })
+        .then(response => response.json())
+        .then(todo => {
+            addTodoToDOM(todo);
+            titleInput.value = ''; 
+        })
+        .catch(error => console.error('Error adding todo:', error));
 });
-
-// Load Todos
-async function loadTodos() {
-    const token = localStorage.getItem('token');
-    try {
-        const response = await fetch('http://localhost:3000/todo', {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-            },
-        });
-        const { todos } = await response.json();
-        const todoList = document.getElementById('todo-list');
-        todoList.innerHTML = '';
-
-        todos.forEach(todo => {
-            const li = document.createElement('li');
-            li.textContent = todo.title;
-
-            if (todo.completed) {
-                li.style.textDecoration = 'line-through';
-            }
-
-            const completeButton = document.createElement('button');
-            completeButton.textContent = 'Complete';
-            completeButton.onclick = () => {
-                completeTodo(todo._id, !todo.completed);
-            };
-
-            if (!todo.completed) {
-                li.appendChild(completeButton);
-            }
-
-            todoList.appendChild(li);
-        });
-    } catch (error) {
-        console.error('Error loading todos:', error);
-    }
+// Delete a todo
+function deleteTodo(id) {
+    fetch(`${API_URL}/${id}`, {
+        method: 'DELETE',
+    })
+        .then(() => {
+            const todoItem = document.querySelector(`[data-id='${id}']`);
+            todoItem.remove();
+        })
+        .catch(error => console.error('Error deleting todo:', error));
 }
-
-// Complete Todo
-async function completeTodo(id, completed) {
-    const token = localStorage.getItem('token');
-    try {
-        await fetch(`http://localhost:3000/todo/${id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-            },
-            body: JSON.stringify({ completed }),
-        });
-        loadTodos();
-    } catch (error) {
-        console.error('Error completing todo:', error);
-    }
-}
-
-// Toggle between Signup and Signin
-document.getElementById('show-signin').addEventListener('click', (e) => {
-    e.preventDefault();
-    document.getElementById('signup-container').style.display = 'none';
-    document.getElementById('signin-container').style.display = 'block';
-});
-
-document.getElementById('show-signup').addEventListener('click', (e) => {
-    e.preventDefault();
-    document.getElementById('signin-container').style.display = 'none';
-    document.getElementById('signup-container').style.display = 'block';
-});
