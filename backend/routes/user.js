@@ -1,43 +1,72 @@
 const express = require('express');
-const router = express.Router();
 const jwt = require('jsonwebtoken');
-const { userModel } = require('../database/index');
-const { userAuthJWT, secret } = require("../middleware/user");
-router.use(express.json());
+const User = require('../database/userModel');
+const router = express.Router();
 
-router.post("/signup", async (req, res) => {
+// User registration
+router.post('/signup', async (req, res) => {
+  try {
     const { username, password } = req.body;
-    const existingUser = await userModel.findOne({ username });
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ username });
     if (existingUser) {
-        return res.status(403).json({ message: "User already exists" });
+      return res.status(400).json({ message: 'User already exists' });
     }
 
-    const newUser = await userModel.create({
-        password: password,
-        username: username,
+    // Create new user
+    const newUser = await User.create({
+      username,
+      password,
     });
 
-    const token = jwt.sign({ userId: newUser._id }, secret, { expiresIn: '1h' });
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: newUser._id },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
 
-    if (token) {
-        return res.json({ message: "Token created successfully", token });
-    }
-    return res.status(500).json({ message: "Error creating user" });
+    res.status(201).json({
+      message: 'User created successfully',
+      token
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating user', error: error.message });
+  }
 });
 
+// User login
 router.post('/signin', async (req, res) => {
+  try {
     const { username, password } = req.body;
-    try {
-        const user = await userModel.findOne({ username, password });
-        if (user) {
-            const token = jwt.sign({ userId: user._id }, secret, { expiresIn: '1h' });
-            res.json({ message: 'Logged in successfully', token });
-        } else {
-            res.status(403).json({ message: 'Invalid username or password' });
-        }
-    } catch (error) {
-        res.status(500).json({ message: 'Error signing in', error });
+
+    // Find user by username
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid username or password' });
     }
+
+    // Check password
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid username or password' });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    res.json({
+      message: 'Logged in successfully',
+      token
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error signing in', error: error.message });
+  }
 });
 
 module.exports = router;

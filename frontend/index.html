@@ -1,26 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Taskify</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taskify - Simple Todo List</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-  <div class="container">
-    <h1>Taskify</h1>
+    <div class="container">
+        <header>
+            <h1>Taskify</h1>
+            <div id="user-info" class="hidden">
+                <span id="username-display"></span>
+                <button id="logout-btn">Logout</button>
+            </div>
+        </header>
 
-    <div class="input-container">
-      <input type="text" id="todo-input" placeholder="Enter a todo..." />
-      <button id="add-todo-btn">Add Todo</button>
+        <!-- Auth Forms -->
+        <div id="auth-section">
+            <div id="login-form" class="auth-form">
+                <h2>Login</h2>
+                <form id="login">
+                    <div class="form-group">
+                        <label for="login-username">Username</label>
+                        <input type="text" id="login-username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+                    <button type="submit">Login</button>
+                </form>
+                <p>Don't have an account? <a href="#" id="show-signup">Sign up</a></p>
+                <div id="login-error" class="error-message"></div>
+            </div>
+
+            <div id="signup-form" class="auth-form hidden">
+                <h2>Sign Up</h2>
+                <form id="signup">
+                    <div class="form-group">
+                        <label for="signup-username">Username</label>
+                        <input type="text" id="signup-username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <input type="password" id="signup-password" required>
+                    </div>
+                    <button type="submit">Sign Up</button>
+                </form>
+                <p>Already have an account? <a href="#" id="show-login">Login</a></p>
+                <div id="signup-error" class="error-message"></div>
+            </div>
+        </div>
+
+        <!-- Todo Section -->
+        <div id="todo-section" class="hidden">
+            <div class="todo-header">
+                <h2>My Tasks</h2>
+            </div>
+            <form id="todo-form">
+                <input type="text" id="todo-input" placeholder="What needs to be done?" required>
+                <button type="submit">Add Task</button>
+            </form>
+            <ul id="todo-list"></ul>
+            <div id="todo-error" class="error-message"></div>
+        </div>
     </div>
 
-    <ul id="todo-list"></ul>
-  </div>
-
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
-
 </html>

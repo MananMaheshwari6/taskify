@@ -1,74 +1,365 @@
-const API_URL = 'http://localhost:3000/todos';
+// API Configuration - Change this to match your backend URL
+const API_BASE_URL = 'http://localhost:3000';
 
-// Fetch existing todos when the page loads
-document.addEventListener('DOMContentLoaded', () => {
-    fetchTodos();
+// DOM Elements
+const authSection = document.getElementById('auth-section');
+const loginForm = document.getElementById('login-form');
+const signupForm = document.getElementById('signup-form');
+const todoSection = document.getElementById('todo-section');
+const userInfo = document.getElementById('user-info');
+const usernameDisplay = document.getElementById('username-display');
+const todoList = document.getElementById('todo-list');
+const todoInput = document.getElementById('todo-input');
+const loginError = document.getElementById('login-error');
+const signupError = document.getElementById('signup-error');
+const todoError = document.getElementById('todo-error');
+
+// Auth toggle links
+document.getElementById('show-signup').addEventListener('click', function(e) {
+    e.preventDefault();
+    loginForm.classList.add('hidden');
+    signupForm.classList.remove('hidden');
 });
 
-// Fetch todos from the backend
-function fetchTodos() {
-    fetch(API_URL)
-        .then(response => response.json())
-        .then(todos => {
-            todos.forEach(todo => addTodoToDOM(todo));
-        })
-        .catch(error => console.error('Error fetching todos:', error));
+document.getElementById('show-login').addEventListener('click', function(e) {
+    e.preventDefault();
+    signupForm.classList.add('hidden');
+    loginForm.classList.remove('hidden');
+});
+
+// Logout button
+document.getElementById('logout-btn').addEventListener('click', function() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    showAuthForms();
+});
+
+// Check if user is logged in
+function checkAuth() {
+    const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username');
+
+    if (token && username) {
+        usernameDisplay.textContent = username;
+        showTodoSection();
+        fetchTodos();
+    } else {
+        showAuthForms();
+    }
 }
 
-// Add a new todo to the DOM
-function addTodoToDOM(todo) {
-    const todoList = document.getElementById('todo-list');
+// Show auth forms and hide todo section
+function showAuthForms() {
+    authSection.classList.remove('hidden');
+    todoSection.classList.add('hidden');
+    userInfo.classList.add('hidden');
+    clearErrors();
+}
 
-    const todoItem = document.createElement('li');
-    todoItem.classList.add('todo-item');
-    todoItem.setAttribute('data-id', todo.id);
+// Show todo section and hide auth forms
+function showTodoSection() {
+    authSection.classList.add('hidden');
+    todoSection.classList.remove('hidden');
+    userInfo.classList.remove('hidden');
+    clearErrors();
+}
 
-    const title = document.createElement('span');
-    title.textContent = todo.task; 
+// Clear all error messages
+function clearErrors() {
+    loginError.textContent = '';
+    signupError.textContent = '';
+    todoError.textContent = '';
+}
 
-    const deleteButton = document.createElement('button');
-    deleteButton.textContent = 'Delete';
-    deleteButton.addEventListener('click', () => deleteTodo(todo.id));
+// Handle login form submission
+document.getElementById('login').addEventListener('submit', function(e) {
+    e.preventDefault();
 
-    todoItem.appendChild(title);
-    todoItem.appendChild(deleteButton);
+    const username = document.getElementById('login-username').value;
+    const password = document.getElementById('login-password').value;
 
-    todoList.appendChild(todoItem);
+    loginUser(username, password);
+});
+
+// Handle signup form submission
+document.getElementById('signup').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const username = document.getElementById('signup-username').value;
+    const password = document.getElementById('signup-password').value;
+
+    signupUser(username, password);
+});
+
+// Handle todo form submission
+document.getElementById('todo-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const title = todoInput.value.trim();
+    if (title) {
+        addTodo(title);
+        todoInput.value = '';
+    }
+});
+
+// API Calls
+
+// Login user
+async function loginUser(username, password) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/signin`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to login');
+        }
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('username', username);
+
+        showTodoSection();
+        fetchTodos();
+    } catch (error) {
+        loginError.textContent = error.message;
+        console.error('Login error:', error);
+    }
+}
+
+// Signup user
+async function signupUser(username, password) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/signup`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to sign up');
+        }
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('username', username);
+
+        showTodoSection();
+        fetchTodos();
+    } catch (error) {
+        signupError.textContent = error.message;
+        console.error('Signup error:', error);
+    }
+}
+
+// Fetch all todos
+async function fetchTodos() {
+    try {
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            showAuthForms();
+            return;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/todo`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            if (response.status === 401) {
+                // Unauthorized - token expired or invalid
+                localStorage.removeItem('token');
+                localStorage.removeItem('username');
+                showAuthForms();
+                return;
+            }
+
+            const data = await response.json();
+            throw new Error(data.message || 'Failed to fetch todos');
+        }
+
+        const data = await response.json();
+        renderTodos(data.todos || []);
+    } catch (error) {
+        todoError.textContent = error.message;
+        console.error('Fetch todos error:', error);
+    }
 }
 
 // Add a new todo
-document.getElementById('add-todo-btn').addEventListener('click', () => {
-    const titleInput = document.getElementById('todo-input'); 
+async function addTodo(title) {
+    try {
+        const token = localStorage.getItem('token');
 
-    if (!titleInput) {
-        console.error('Input not found');
+        if (!token) {
+            showAuthForms();
+            return;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/todo`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ title })
+        });
+
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.message || 'Failed to add todo');
+        }
+
+        // Refresh todos
+        fetchTodos();
+    } catch (error) {
+        todoError.textContent = error.message;
+        console.error('Add todo error:', error);
+    }
+}
+
+// Toggle todo completion status
+async function toggleTodo(id, completed) {
+    try {
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            showAuthForms();
+            return;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/todo/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ completed })
+        });
+
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.message || 'Failed to update todo');
+        }
+
+        // Update UI without refetching all todos
+        const todoItem = document.querySelector(`[data-id="${id}"]`);
+        if (todoItem) {
+            if (completed) {
+                todoItem.classList.add('completed');
+            } else {
+                todoItem.classList.remove('completed');
+            }
+        }
+    } catch (error) {
+        todoError.textContent = error.message;
+        console.error('Update todo error:', error);
+    }
+}
+
+// Delete a todo
+async function deleteTodo(id) {
+    try {
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            showAuthForms();
+            return;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/todo/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.message || 'Failed to delete todo');
+        }
+
+        // Remove todo from UI
+        const todoItem = document.querySelector(`[data-id="${id}"]`);
+        if (todoItem) {
+            todoItem.remove();
+        }
+    } catch (error) {
+        todoError.textContent = error.message;
+        console.error('Delete todo error:', error);
+    }
+}
+
+// Render todos in the UI
+function renderTodos(todos) {
+    todoList.innerHTML = '';
+
+    if (todos.length === 0) {
+        const emptyMessage = document.createElement('p');
+        emptyMessage.textContent = 'No tasks yet. Add one above!';
+        emptyMessage.style.textAlign = 'center';
+        emptyMessage.style.margin = '20px 0';
+        todoList.appendChild(emptyMessage);
         return;
     }
 
-    const newTodo = { task: titleInput.value };
+    todos.forEach(todo => {
+        const li = document.createElement('li');
+        li.className = 'todo-item';
+        li.dataset.id = todo._id;
 
-    fetch(API_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newTodo),
-    })
-        .then(response => response.json())
-        .then(todo => {
-            addTodoToDOM(todo);
-            titleInput.value = ''; 
-        })
-        .catch(error => console.error('Error adding todo:', error));
-});
-// Delete a todo
-function deleteTodo(id) {
-    fetch(`${API_URL}/${id}`, {
-        method: 'DELETE',
-    })
-        .then(() => {
-            const todoItem = document.querySelector(`[data-id='${id}']`);
-            todoItem.remove();
-        })
-        .catch(error => console.error('Error deleting todo:', error));
+        if (todo.completed) {
+            li.classList.add('completed');
+        }
+
+        const leftDiv = document.createElement('div');
+        leftDiv.className = 'todo-item-left';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'todo-checkbox';
+        checkbox.checked = todo.completed;
+        checkbox.addEventListener('change', function() {
+            toggleTodo(todo._id, this.checked);
+        });
+
+        const span = document.createElement('span');
+        span.className = 'todo-text';
+        span.textContent = todo.title;
+
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'todo-actions';
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.addEventListener('click', function() {
+            deleteTodo(todo._id);
+        });
+
+        leftDiv.appendChild(checkbox);
+        leftDiv.appendChild(span);
+
+        actionsDiv.appendChild(deleteBtn);
+
+        li.appendChild(leftDiv);
+        li.appendChild(actionsDiv);
+
+        todoList.appendChild(li);
+    });
 }
+
+// Initialize the application
+checkAuth();

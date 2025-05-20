@@ -1,23 +1,37 @@
 const express = require('express');
-const app = express();
-const userRouter = require("./routes/user");
-const todoRouter = require("./routes/todo");
-const { connectToDb } = require('./database/index');
 const cors = require('cors');
-require('dotenv').config(); // Also needed to read .env values
+const { connectToDB } = require('./database');
+const userRoutes = require('./routes/user');
+const todoRoutes = require('./routes/todo');
+require('dotenv').config();
 
-connectToDb();
+// Initialize Express app
+const app = express();
 
-// 🔧 Middleware fixes
-app.use(cors());           // 🛠 You were missing parentheses — should be cors()
-app.use(express.json());   // 🛠 Needed to parse JSON requests globally
+// Connect to MongoDB
+connectToDB();
 
-app.use("/user", userRouter);
-app.use("/todo", todoRouter);
+// Middleware
+app.use(cors()); // Allow cross-origin requests
+app.use(express.json()); // Parse JSON requests
 
-// 🛠 Ensure PORT is loaded from .env
+// Routes
+app.use('/', userRoutes); // Auth routes (/signup, /signin)
+app.use('/todo', todoRoutes); // Todo routes (/todo, /todo/:id)
+
+// Default route
+app.get('/', (req, res) => {
+  res.json({ message: 'Taskify API is running' });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something went wrong!' });
+});
+
+// Start server
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
