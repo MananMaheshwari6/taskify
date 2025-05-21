@@ -3,31 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taskify - Simple Todo List</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Taskify - Todo List Manager</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="description" content="Taskify - A simple and elegant todo list application to manage your tasks.">
 </head>
 <body>
     <div class="container">
         <header>
             <h1>Taskify</h1>
-            <div id="user-info" class="hidden">
-                <span id="username-display"></span>
-                <button id="logout-btn">Logout</button>
+            <div class="header-controls">
+                <div id="user-info" class="hidden">
+                    <span id="username-display"></span>
+                    <button id="logout-btn">Logout</button>
+                </div>
+                <div class="theme-switch">
+                    <label class="theme-switch-toggle">
+                        <input type="checkbox" id="theme-toggle">
+                        <span class="slider"></span>
+                    </label>
+                <div class="theme-icons">
+                    <i class="fas fa-moon"></i>
+                </div>
             </div>
-        </header>
+    </div>
+</header>
 
         <!-- Auth Forms -->
         <div id="auth-section">
             <div id="login-form" class="auth-form">
-                <h2>Login</h2>
+                <h2>Welcome Back</h2>
                 <form id="login">
                     <div class="form-group">
                         <label for="login-username">Username</label>
-                        <input type="text" id="login-username" required>
+                        <input type="text" id="login-username" placeholder="Enter your username" required>
                     </div>
                     <div class="form-group">
                         <label for="login-password">Password</label>
-                        <input type="password" id="login-password" required>
+                        <input type="password" id="login-password" placeholder="Enter your password" required>
                     </div>
                     <button type="submit">Login</button>
                 </form>
@@ -36,15 +50,15 @@
             </div>
 
             <div id="signup-form" class="auth-form hidden">
-                <h2>Sign Up</h2>
+                <h2>Create Account</h2>
                 <form id="signup">
                     <div class="form-group">
                         <label for="signup-username">Username</label>
-                        <input type="text" id="signup-username" required>
+                        <input type="text" id="signup-username" placeholder="Choose a username" required>
                     </div>
                     <div class="form-group">
                         <label for="signup-password">Password</label>
-                        <input type="password" id="signup-password" required>
+                        <input type="password" id="signup-password" placeholder="Create a password" required>
                     </div>
                     <button type="submit">Sign Up</button>
                 </form>
@@ -67,6 +81,6 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="js/script.js"></script>
 </body>
 </html>

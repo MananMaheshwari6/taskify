@@ -1,0 +1,74 @@
+/* CSS Variables for Theming */
+:root {
+  /* Light Theme Colors */
+  --primary-color: #3a86ff;
+  --primary-dark: #2667c9;
+  --secondary-color: #8338ec;
+  --accent-color: #ff006e;
+  --success-color: #06d6a0;
+  --warning-color: #ffbe0b;
+  --danger-color: #ef476f;
+  --light-bg: #f8f9fa;
+  --light-surface: #ffffff;
+  --light-text: #212529;
+  --light-text-secondary: #6c757d;
+  --light-border: #dee2e6;
+  --light-shadow: rgba(0, 0, 0, 0.1);
+
+  /* Dark Theme Colors */
+  --dark-bg: #121212;
+  --dark-surface: #1e1e1e;
+  --dark-surface-2: #2d2d2d;
+  --dark-text: #e9ecef;
+  --dark-text-secondary: #adb5bd;
+  --dark-border: #343a40;
+  --dark-shadow: rgba(0, 0, 0, 0.3);
+
+  /* Default Theme (Light) */
+  --bg-color: var(--light-bg);
+  --surface-color: var(--light-surface);
+  --text-color: var(--light-text);
+  --text-secondary-color: var(--light-text-secondary);
+  --border-color: var(--light-border);
+  --shadow-color: var(--light-shadow);
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-xxl: 3rem;
+
+  /* Typography */
+  --font-family-main: 'Poppins', sans-serif;
+  --font-family-heading: 'Montserrat', sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-xxl: 1.5rem;
+  --font-size-xxxl: 2rem;
+
+  /* Borders */
+  --border-radius-sm: 0.25rem;
+  --border-radius-md: 0.5rem;
+  --border-radius-lg: 1rem;
+  --border-radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+}
+
+/* Dark Theme Class */
+.dark-theme {
+  --bg-color: var(--dark-bg);
+  --surface-color: var(--dark-surface);
+  --text-color: var(--dark-text);
+  --text-secondary-color: var(--dark-text-secondary);
+  --border-color: var(--dark-border);
+  --shadow-color: var(--dark-shadow);
+}
