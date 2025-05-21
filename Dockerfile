@@ -1,21 +1,25 @@
 FROM node:16
 
+# Set working directory
 WORKDIR /app
 
-# Copy backend files
+# Install backend dependencies
 COPY backend/package*.json ./backend/
 RUN cd backend && npm install
 
-# Copy backend source
-COPY backend/ ./backend/
+# Install concurrently for managing multiple processes
+RUN npm install -g concurrently
 
-# Copy frontend files
+# Copy all source files
+COPY backend/ ./backend/
 COPY frontend/ ./frontend/
 
-# Expose ports
-# Frontend: 5500 (to match Live Server default)
-# Backend: 3000 (your current backend port)
+# Copy start script
+COPY start.sh /app/
+RUN chmod +x /app/start.sh
+
+# Expose frontend and backend ports
 EXPOSE 5500 3000
 
-# Start both servers
-CMD ["sh", "-c", "cd backend && npm start & cd ../frontend && python3 -m http.server 5500"]
+# Start both frontend and backend servers
+CMD ["/app/start.sh"]
