@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+
 function Home() {
   const [todos, setTodos] = useState([]);
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [newTodo, setNewTodo] = useState("");
 
@@ -21,9 +21,8 @@ function Home() {
         });
         console.log(response.data.todos);
         setTodos(response.data.todos);
-        setError(null);
       } catch (error) {
-        setError("Failed to fetch todos");
+        console.error("Failed to fetch todos", error);
       } finally {
         setLoading(false);
       }
@@ -48,7 +47,7 @@ function Home() {
       setTodos([...todos, response.data.newTodo]);
       setNewTodo("");
     } catch (error) {
-      setError("Failed to create todo");
+      console.error("Failed to create todo", error);
     }
   };
 
@@ -68,7 +67,7 @@ function Home() {
       console.log(response.data.todo);
       setTodos(todos.map((t) => (t._id === id ? response.data.todo : t)));
     } catch (error) {
-      setError("Failed to find todo status");
+      console.error("Failed to find todo status", error);
     }
   };
 
@@ -79,7 +78,7 @@ function Home() {
       });
       setTodos(todos.filter((t) => t._id !== id));
     } catch (error) {
-      setError("Failed to Delete Todo");
+      console.error("Failed to Delete Todo", error);
     }
   };
 
@@ -122,8 +121,6 @@ function Home() {
         <div className="text-center justify-center">
           <span className="textgray-500">Loading...</span>
         </div>
-      ) : error ? (
-        <div className="text-center text-red-600 font-semibold">{error}</div>
       ) : (
         <ul className="space-y-2">
           {todos.map((todo, index) => (
