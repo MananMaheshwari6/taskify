@@ -99,7 +99,7 @@ function Home() {
   const remainingTodos = todos.filter((todo) => !todo.completed).length;
 
   return (
-    <div className="my-10 bg-gray-100 dark:bg-gray-800 max-w-lg lg:max-w-xl rounded-lg shadow-lg mx-8 sm:mx-auto p-6 font-sans text-gray-900 dark:text-gray-100 transition-colors duration-300">
+    <div className="my-10 bg-gray-100 dark:bg-gray-800 max-w-lg lg:max-w-xl rounded-lg shadow-lg mx-8 sm:mx-auto p-6 font-sans text-gray-900 dark:text-gray-100 transition-colors duration-300 card-dark">
       <h1 className="text-2xl font-semibold text-center">Todo App</h1>
       <div className="flex mb-4">
         <input
@@ -108,7 +108,7 @@ function Home() {
           value={newTodo}
           onChange={(e) => setNewTodo(e.target.value)}
           onKeyPress={(e) => e.key === "Enter" && todoCreate()}
-          className="flex-grow p-2 border rounded-l-md focus:outline-none"
+          className="flex-grow p-2 border rounded-l-md focus:outline-none input-dark border-dark"
         />
         <button
           onClick={todoCreate}
@@ -119,14 +119,14 @@ function Home() {
       </div>
       {loading ? (
         <div className="text-center justify-center">
-          <span className="textgray-500">Loading...</span>
+          <span className="textgray-500 muted-dark">Loading...</span>
         </div>
       ) : (
         <ul className="space-y-2">
           {todos.map((todo, index) => (
             <li
               key={todo._id || index}
-              className="flex items-center justify-between p-3 bg-gray-100 rounded-md"
+              className="flex items-center justify-between p-3 bg-gray-100 rounded-md card-dark"
             >
               <div className="flex items-center">
                 <input
@@ -138,7 +138,7 @@ function Home() {
                 <span
                   className={`${
                     todo.completed
-                      ? "line-through text-gray-800 font-semibold"
+                      ? "line-through text-gray-800 font-semibold muted-dark"
                       : ""
                   } `}
                 >
@@ -156,7 +156,7 @@ function Home() {
         </ul>
       )}
 
-      <p className="mt-4 text-center text-sm text-gray-700">
+      <p className="mt-4 text-center text-sm text-gray-700 muted-dark">
         {remainingTodos} remaining todos
       </p>
       <button

@@ -42,7 +42,7 @@ function Signup() {
     <div>
       <div>
         <div className="flex h-screen items-center justify-center bg-gray-100 dark:bg-gray-900 font-sans text-gray-900 dark:text-gray-100 transition-colors duration-300">
-          <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
+          <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg card-dark">
             <h2 className="text-2xl font-semibold mb-5 text-center">Signup</h2>
             <form onSubmit={handleRegister}>
               {/* username */}
@@ -51,7 +51,7 @@ function Signup() {
                   Username
                 </label>
                 <input
-                  className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 input-dark border-dark"
                   type="text"
                   value={username}
                   onChange={(e) => setUserName(e.target.value)}
@@ -64,7 +64,7 @@ function Signup() {
                   Email
                 </label>
                 <input
-                  className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 input-dark border-dark"
                   type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -77,7 +77,7 @@ function Signup() {
                   Password
                 </label>
                 <input
-                  className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 input-dark border-dark"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -91,7 +91,7 @@ function Signup() {
               >
                 Signup
               </button>
-              <p className="mt-4 text-center text-gray-600">
+              <p className="mt-4 text-center text-gray-600 muted-dark">
                 Already have an account?{" "}
                 <Link to="/login" className="text-blue-600 hover:underline">
                   Login
