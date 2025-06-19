@@ -99,7 +99,7 @@ function Home() {
   const remainingTodos = todos.filter((todo) => !todo.completed).length;
 
   return (
-    <div className="my-10 bg-gray-100 max-w-lg lg:max-w-xl rounded-lg shadow-lg mx-8 sm:mx-auto p-6">
+    <div className="my-10 bg-gray-100 dark:bg-gray-800 max-w-lg lg:max-w-xl rounded-lg shadow-lg mx-8 sm:mx-auto p-6 font-sans text-gray-900 dark:text-gray-100 transition-colors duration-300">
       <h1 className="text-2xl font-semibold text-center">Todo App</h1>
       <div className="flex mb-4">
         <input

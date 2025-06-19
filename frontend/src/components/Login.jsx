@@ -38,7 +38,7 @@ function Login() {
   return (
     <div>
       <div>
-        <div className="flex h-screen items-center justify-center bg-gray-100">
+        <div className="flex h-screen items-center justify-center bg-gray-100 dark:bg-gray-900 font-sans text-gray-900 dark:text-gray-100 transition-colors duration-300">
           <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
             <h2 className="text-2xl font-semibold mb-5 text-center">Login</h2>
             <form onSubmit={handleRegister}>
