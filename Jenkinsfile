@@ -2,10 +2,7 @@ pipeline {
     agent any
     
     environment {
-        DOCKER_REGISTRY = 'your-docker-registry.com'
-        IMAGE_NAME = 'taskify'
-        IMAGE_TAG = "${env.BUILD_NUMBER}"
-        EC2_HOST = 'your-ec2-instance-ip'
+        EC2_HOST = '16.171.200.87
         EC2_USER = 'ec2-user'
         SSH_KEY_CRED = 'ec2-ssh-key'
         DOCKER_COMPOSE_FILE = 'docker-compose.yml'
@@ -71,30 +68,20 @@ pipeline {
             }
         }
         
-        stage('Push Docker Images') {
-            steps {
-                script {
-                    docker.withRegistry("https://${DOCKER_REGISTRY}", 'docker-registry-credentials') {
-                        docker.image("${DOCKER_REGISTRY}/${IMAGE_NAME}-backend:${IMAGE_TAG}").push()
-                        docker.image("${DOCKER_REGISTRY}/${IMAGE_NAME}-backend:${IMAGE_TAG}").push('latest')
-                        docker.image("${DOCKER_REGISTRY}/${IMAGE_NAME}-frontend:${IMAGE_TAG}").push()
-                        docker.image("${DOCKER_REGISTRY}/${IMAGE_NAME}-frontend:${IMAGE_TAG}").push('latest')
-                    }
-                }
-            }
-        }
-        
         stage('Deploy to EC2') {
             steps {
                 sshagent([env.SSH_KEY_CRED]) {
                     sh """
+                        scp -o StrictHostKeyChecking=no -r backend ${EC2_USER}@${EC2_HOST}:/home/${EC2_USER}/taskify/
+                        scp -o StrictHostKeyChecking=no -r frontend ${EC2_USER}@${EC2_HOST}:/home/${EC2_USER}/taskify/
                         scp -o StrictHostKeyChecking=no docker-compose.yml ${EC2_USER}@${EC2_HOST}:/home/${EC2_USER}/taskify/
                         scp -o StrictHostKeyChecking=no deploy.sh ${EC2_USER}@${EC2_HOST}:/home/${EC2_USER}/taskify/
                         scp -o StrictHostKeyChecking=no mongo-init.js ${EC2_USER}@${EC2_HOST}:/home/${EC2_USER}/taskify/
                         ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} '
                             cd /home/${EC2_USER}/taskify
                             chmod +x deploy.sh
-                            ./deploy.sh
+                            docker compose down
+                            docker compose up --build -d
                         '
                     """
                 }
