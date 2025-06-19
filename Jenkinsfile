@@ -59,15 +59,6 @@ pipeline {
             }
         }
         
-        stage('Build Docker Images') {
-            steps {
-                script {
-                    docker.build("${DOCKER_REGISTRY}/${IMAGE_NAME}-backend:${IMAGE_TAG}", "./backend")
-                    docker.build("${DOCKER_REGISTRY}/${IMAGE_NAME}-frontend:${IMAGE_TAG}", "./frontend")
-                }
-            }
-        }
-        
         stage('Deploy to EC2') {
             steps {
                 sshagent([env.SSH_KEY_CRED]) {
