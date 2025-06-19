@@ -2,7 +2,7 @@ pipeline {
     agent any
     
     environment {
-        EC2_HOST = '16.171.200.87
+        EC2_HOST = '16.171.200.87'
         EC2_USER = 'ec2-user'
         SSH_KEY_CRED = 'ec2-ssh-key'
         DOCKER_COMPOSE_FILE = 'docker-compose.yml'
