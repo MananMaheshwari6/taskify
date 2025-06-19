@@ -72,9 +72,6 @@ pipeline {
         }
         
         stage('Push Docker Images') {
-            when {
-                branch 'main'
-            }
             steps {
                 script {
                     docker.withRegistry("https://${DOCKER_REGISTRY}", 'docker-registry-credentials') {
@@ -88,9 +85,6 @@ pipeline {
         }
         
         stage('Deploy to EC2') {
-            when {
-                branch 'main'
-            }
             steps {
                 sshagent([env.SSH_KEY_CRED]) {
                     sh """
@@ -108,9 +102,6 @@ pipeline {
         }
         
         stage('Health Check') {
-            when {
-                branch 'main'
-            }
             steps {
                 script {
                     sleep 30
