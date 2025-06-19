@@ -10,13 +10,14 @@ pipeline {
         SSH_KEY_CRED = 'ec2-ssh-key'
         DOCKER_COMPOSE_FILE = 'docker-compose.yml'
     }
-    stage('Clean Workspace') {
+
+    stages {
+        stage('Clean Workspace') {
             steps {
                 cleanWs()
             }
-    }
-    
-    stages {
+        }
+        
         stage('Checkout') {
             steps {
                 checkout scm
