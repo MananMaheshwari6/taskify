@@ -13,7 +13,7 @@ function Home() {
     const fetchtodos = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:4001/todo/fetch", {
+        const response = await axios.get("http://16.171.200.87:4002/todo/fetch", {
           withCredentials: true,
           headers: {
             "Content-Type": "application/json",
@@ -35,7 +35,7 @@ function Home() {
     if (!newTodo) return;
     try {
       const response = await axios.post(
-        "http://localhost:4001/todo/create",
+        "http://16.171.200.87:4002/todo/create",
         {
           text: newTodo,
           completed: false,
@@ -56,7 +56,7 @@ function Home() {
     const todo = todos.find((t) => t._id === id);
     try {
       const response = await axios.put(
-        `http://localhost:4001/todo/update/${id}`,
+        `http://16.171.200.87:4002/todo/update/${id}`,
         {
           ...todo,
           completed: !todo.completed,
@@ -74,7 +74,7 @@ function Home() {
 
   const todoDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:4001/todo/delete/${id}`, {
+      await axios.delete(`http://16.171.200.87:4002/todo/delete/${id}`, {
         withCredentials: true,
       });
       setTodos(todos.filter((t) => t._id !== id));
@@ -86,7 +86,7 @@ function Home() {
   const navigateTo = useNavigate();
   const logout = async () => {
     try {
-      await axios.get("http://localhost:4001/user/logout", {
+      await axios.get("http://16.171.200.87:4002/user/logout", {
         withCredentials: true,
       });
       toast.success("User logged out successfully");

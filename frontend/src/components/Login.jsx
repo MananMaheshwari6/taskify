@@ -12,7 +12,7 @@ function Login() {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        "http://localhost:4001/user/login",
+        "http://16.171.200.87:4002/user/login",
         {
           email,
           password,
