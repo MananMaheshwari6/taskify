@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -92,6 +91,7 @@ function Home() {
       navigateTo("/login");
       localStorage.removeItem("jwt");
     } catch (error) {
+      console.error("Logout error:", error); // ✅ Fix: use the error
       toast.error("Error logging out");
     }
   };
@@ -99,7 +99,7 @@ function Home() {
   const remainingTodos = todos.filter((todo) => !todo.completed).length;
 
   return (
-    <div className=" my-10 bg-gray-100 max-w-lg lg:max-w-xl rounded-lg shadow-lg mx-8 sm:mx-auto p-6">
+    <div className="my-10 bg-gray-100 max-w-lg lg:max-w-xl rounded-lg shadow-lg mx-8 sm:mx-auto p-6">
       <h1 className="text-2xl font-semibold text-center">Todo App</h1>
       <div className="flex mb-4">
         <input
